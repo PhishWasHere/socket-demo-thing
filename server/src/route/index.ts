@@ -1,14 +1,15 @@
 import express, { Request, Response } from 'express';
-import ioServer from '../utils/socket';
-import { server } from '../server';
+import getError from '../utils/getError';
+import { getSocket } from '../utils/socket';
 
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-        ioServer(server)
+        const io = getSocket() // get socket.io instance
+
     } catch (err) {
-        
+        console.log(err);
     }
 })
 
