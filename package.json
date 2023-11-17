@@ -1,0 +1,14 @@
+{
+  "name": "next-task-management-thing",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"cd server && yarn dev\" \"cd client && yarn dev\""
+  },
+  "repository": "git@github.com:PhishWasHere/next-task-management-thing.git",
+  "author": "PhishWasHere <121412190+PhishWasHere@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
