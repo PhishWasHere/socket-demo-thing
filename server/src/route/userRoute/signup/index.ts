@@ -12,6 +12,7 @@ router.post('/', async (req, res) => {
         try {
             const userData = await User.create({ username, password });
             
+            // might redir to login page
             const token = signToken({ _id: userData._id, username }, res);
 
             res.status(201).json({ username, id: userData._id, token });

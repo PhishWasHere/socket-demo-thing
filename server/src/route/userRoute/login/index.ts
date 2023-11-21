@@ -17,7 +17,8 @@ router.post('/', async (req, res) => {
             // add password comparison once db hashing setup
 
             const token = signToken({ _id: userData!._id, username }, res);
-
+            
+            // Socket_ID set when frontend 'login' event is emitted (/utils/socket)
             res.status(201).json({ username, id: userData!._id, token });
 
         } catch {
