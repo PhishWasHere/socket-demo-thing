@@ -1,13 +1,13 @@
 import io, { Socket } from "socket.io-client";
 
-export const initSocket = (async (room: string | number) => {
+export const initSocket = (async (room: string | number | null) => {
     const socket = io('http://localhost:3030', {
         transports: ['websocket'],
         autoConnect: true,
         reconnection: true,
         reconnectionDelay: 500,
         reconnectionAttempts: 20,
-        forceNew: true,
+        forceNew: false,
         query: {
             room
         }

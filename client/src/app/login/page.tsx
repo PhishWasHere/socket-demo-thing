@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react'
 import io, { Socket } from 'socket.io-client'
 import axios from 'axios'
-import { initSocket, disconnectSocket } from '../../utils/socket'
 import { login } from '../../utils/auth'
-let socket: Socket | undefined
+import { useSocket } from '../../utils/context'
+
  // TODO
   // add password validation regex
 
@@ -14,11 +14,11 @@ export default function Page() {
     password: '',
   })
 
+  const {socket, joinRoom, disconnect} = useSocket()
+
   useEffect(() => {
-
-
     return () => {
-      if (socket) disconnectSocket(socket) // disconnects socket on unmount
+      disconnect()
     }
   }, [])
 
@@ -32,13 +32,12 @@ export default function Page() {
     e.preventDefault()
     // assigns socked to user
     const userData = await login(formData.username, formData.password)
-
+    console.log(userData);
+    
     if(!userData) return
 
-    socket = await initSocket(formData.username)
+    socket!.emit('login', userData.username)
 
-    // console.log(formData);
-    socket!.emit('login', formData.username)
   })
 
   const passwordToggle = () => {
