@@ -4,9 +4,10 @@ import io, { Socket } from 'socket.io-client'
 import axios from 'axios'
 import { initSocket, disconnectSocket } from '../../utils/socket'
 import { login } from '../../utils/auth'
-let socket: Socket | undefined
- // TODO
-  // add password validation regex
+
+// TODO
+ // add password validation regex
+let socket: Socket | undefined // might init socket in home route
 
 export default function Page() {
   const [formData, setFormData] = useState({
@@ -36,9 +37,7 @@ export default function Page() {
     if(!userData) return
 
     socket = await initSocket(formData.username)
-
-    // console.log(formData);
-    socket!.emit('login', formData.username)
+ 
   })
 
   const passwordToggle = () => {

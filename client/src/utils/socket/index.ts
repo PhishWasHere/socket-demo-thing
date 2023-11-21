@@ -46,6 +46,16 @@ export const initSocket = (async (room: string | number) => {
     return socket
 })
 
+export const joinRoom = (socket: Socket, room: string | number) => {
+    socket.emit('join', room)
+    console.log(`Joined room ${room}`);
+}
+
+export const loginSocket = (socket: Socket, username: string) => {
+    socket.emit('login', username)
+    console.log(`Logged in as ${username}`);
+}
+
 export const disconnectSocket = (socket: Socket) => {
     console.log('Disconnecting socket...');
     if (socket) socket.disconnect();
