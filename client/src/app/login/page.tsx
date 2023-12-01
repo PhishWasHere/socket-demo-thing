@@ -1,9 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import io, { Socket } from 'socket.io-client'
 import axios from 'axios'
 import { initSocket, disconnectSocket } from '../../utils/socket'
-import { login } from '../../utils/auth'
+import { login, checkToken } from '../../utils/auth'
 
 // TODO
  // add password validation regex
@@ -15,9 +16,13 @@ export default function Page() {
     password: '',
   })
 
+  const { push } = useRouter()
+
   useEffect(() => {
-
-
+    (async () => {
+      const token = await checkToken()
+      if (token) push('/')
+    })()
     return () => {
       if (socket) disconnectSocket(socket) // disconnects socket on unmount
     }
@@ -31,13 +36,15 @@ export default function Page() {
     
   const handleSend = (async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
-    // assigns socked to user
     const userData = await login(formData.username, formData.password)
-
+    
     if(!userData) return
 
-    socket = await initSocket(formData.username)
- 
+    push('/')
+    
+    // assigns socked to user
+    // can init on every room join prob wont init here
+    // socket = await initSocket(formData.username)
   })
 
   const passwordToggle = () => {

@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
         try {
             const userData = await User.findOne({ username });
 
-            if (!userData) res.status(400).json({ error: 'Username does not exist' });
+            if (!userData) return res.status(400).json({ error: 'Username does not exist' });
 
             // add password comparison once db hashing setup
 

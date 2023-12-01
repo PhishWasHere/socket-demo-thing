@@ -1,6 +1,6 @@
 import io, { Socket } from "socket.io-client";
 
-export const initSocket = (async (room: string | number) => {
+export const initSocket = (async (room: string | number, userId: string) => {
     const socket = io('http://localhost:3030', {
         transports: ['websocket'],
         autoConnect: true,
@@ -12,51 +12,60 @@ export const initSocket = (async (room: string | number) => {
             room
         }
     })
-
+    
     socket.on('connect', () => {
-        console.log(`Connecting socket...`);
-
+        // console.log(`Connecting socket...`);
+        
+        socket.emit('login', userId) // probably not needed
+        // console.log(`Logged in as ${userId}`);
         socket.emit('join', room)
 
-        socket.on('join', (room) => {
-            console.log(`Joined room ${room}`);
+        socket.on('join', (room) => { // probably not needed
+            // console.log(`Joined room ${room}`);
         })
         
         socket.on('message', (message) => {
-            console.log(message);
+            // console.log(message);
         })
 
         socket.on('connectError', (error) => {
-            console.log('Connection error:', error);
+            // console.log('Connection error:', error);
         });
 
         socket.on('reconnect', (attemptNumber) => {
-            console.log('Reconnected to the server. Attempt:', attemptNumber);
+            // console.log('Reconnected to the server. Attempt:', attemptNumber);
         });
 
         socket.on('reconnectError', (error) => {
-            console.log('Reconnection error:', error);
+            // console.log('Reconnection error:', error);
         });
 
         socket.on('reconnectFailed', () => {
-            console.log('Failed to reconnect to the server');
+            // console.log('Failed to reconnect to the server');
         });
     })
 
     return socket
-})
+});
 
-export const joinRoom = (socket: Socket, room: string | number) => {
+// probably not needed
+export const joinRoom = ( async (socket: Socket, room: string | number) => {
     socket.emit('join', room)
-    console.log(`Joined room ${room}`);
-}
+    // console.log(`Joined room ${room}`);
+});
 
-export const loginSocket = (socket: Socket, username: string) => {
-    socket.emit('login', username)
-    console.log(`Logged in as ${username}`);
-}
+export const sendMessage = ( async (socket: Socket, _id: string, username: string, message: string, room: string | number) => {
+    if(!socket) return console.log('Socket not found')
+    socket.emit('message', _id, username, message, room)
+    // console.log('Message sent:', message);
+});
 
-export const disconnectSocket = (socket: Socket) => {
+// export const loginSocket = ( async (socket: Socket, username: string) => {
+//     socket.emit('login', username)
+//     console.log(`Logged in as ${username}`);
+// });
+
+export const disconnectSocket = ( async (socket: Socket) => {
     console.log('Disconnecting socket...');
     if (socket) socket.disconnect();
-}
+});

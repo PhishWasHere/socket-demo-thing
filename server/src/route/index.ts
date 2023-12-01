@@ -1,12 +1,14 @@
 import express, { Request, Response } from 'express';
 import getError from '../utils/getError';
-import { getSocket } from '../utils/socket';
+// import { getSocket } from '../utils/socket';
 import * as userRoute from './userRoute';
 import * as roomRoute from './roomRoute';
+import { authMiddleware } from '../utils/auth';
+
 
 const router = express.Router();
 router.use('/user', userRoute.default);
-router.use('/room', roomRoute.default);
+router.use('/room',  roomRoute.default);
 
 router.get('/', async (req: Request, res: Response) => {
     try {

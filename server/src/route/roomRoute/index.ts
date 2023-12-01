@@ -11,20 +11,21 @@ const router = express.Router();
 
 router.use('/join', authMiddleware, joinRoom.default); // needs valid token to access
 router.use('/create', authMiddleware, createRoom.default); // needs valid token to access
-router.use('/*',  getRoomContent.default); // needs valid token to access
+router.use('/:_id', authMiddleware,  getRoomContent.default); // needs valid token to access, wildcard route will need room_id in req.body
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { _id } = req.body;
 
-        const userData = await User.findById(_id).exec();
+        
+        const userData = await User.findById(_id);
+        
+        if (!userData) return res.status(405).send('User not found');
+        const roomData = await Room.find({ _id: { $in: userData!.rooms } });
 
-        if (!userData) res.status(405).send('User not found');
-
-        const roomData = await Room.find({ _id: { $in: userData!.rooms } }).exec();
+        // console.log(roomData);
         
         res.status(200).json(roomData);
-
     } catch (err) {
         const errMsg = getError(err);
         res.status(500).json({ error: errMsg });

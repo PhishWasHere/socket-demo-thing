@@ -20,7 +20,7 @@ export default function Page() {
   useEffect(() => {
     (async () => {
       const token = await checkToken()
-      if (token != null ) push('/')
+      // if (token === null || !token) push('/login')
     })()
   }, [])
 

@@ -7,6 +7,7 @@ const api = process.env.API_URL || "http://localhost:3030";
 
 const setToken = async (token: string) => {
   if (token) {
+    // this default header doesnt work reeeeeeeeeeeeeeeeeeeeeeeeeeee
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     Cookie.set('token', token);
   } else {
@@ -19,17 +20,25 @@ const removeToken = async () => {
   Cookie.remove('token');
 };
 
+type TokenType = {
+  exp: number | null;
+  iat: number | null;
+  _id: string | null;
+  username: string | null;
+}
+
 export const checkToken = async () => {
   const token = Cookie.get('token');
   if (token) {
-    const decodedToken = jwtDecode(token);
+    const decodedToken: TokenType = jwtDecode(token);
     if ( !decodedToken || decodedToken.exp! * 1000 < Date.now()) {
       await removeToken();
       return null;
-    } else {
-      await setToken(token);
-      return decodedToken;
-    }
+    } 
+
+    await setToken(token);
+    return { token, decodedToken };
+    
   }
 }
 
