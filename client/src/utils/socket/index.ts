@@ -1,7 +1,9 @@
 import io, { Socket } from "socket.io-client";
+const api = process.env.API_URL || "http://localhost:3030";
 
-export const initSocket = (async (room: string | number, userId: string) => {
-    const socket = io('http://localhost:3030', {
+
+export const initSocket = async (room: string | number, userId: string) => {
+    const socket = io(api, {
         transports: ['websocket'],
         autoConnect: true,
         reconnection: true,
@@ -21,11 +23,11 @@ export const initSocket = (async (room: string | number, userId: string) => {
         socket.emit('join', room)
 
         socket.on('join', (room) => { // probably not needed
-            // console.log(`Joined room ${room}`);
+            console.log(`Joined room ${room}`);
         })
         
-        socket.on('message', (message) => {
-            // console.log(message);
+        socket.on('message', async ( _id, username, message, room) => {
+            console.log('message', message, room);
         })
 
         socket.on('connectError', (error) => {
@@ -46,26 +48,22 @@ export const initSocket = (async (room: string | number, userId: string) => {
     })
 
     return socket
-});
+};
 
 // probably not needed
-export const joinRoom = ( async (socket: Socket, room: string | number) => {
+export const joinRoom = async (socket: Socket, room: string | number) => {
     socket.emit('join', room)
     // console.log(`Joined room ${room}`);
-});
+};
 
-export const sendMessage = ( async (socket: Socket, _id: string, username: string, message: string, room: string | number) => {
+export const sendMessage = async (socket: Socket, _id: string, username: string, message: string, room: string | number) => {
     if(!socket) return console.log('Socket not found')
     socket.emit('message', _id, username, message, room)
     // console.log('Message sent:', message);
-});
+};
 
-// export const loginSocket = ( async (socket: Socket, username: string) => {
-//     socket.emit('login', username)
-//     console.log(`Logged in as ${username}`);
-// });
 
-export const disconnectSocket = ( async (socket: Socket) => {
+export const disconnectSocket = async (socket: Socket) => {
     console.log('Disconnecting socket...');
     if (socket) socket.disconnect();
-});
+};

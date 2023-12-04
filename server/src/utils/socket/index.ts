@@ -15,29 +15,16 @@ export const initSocket = async (server: Server) => {
     
     ioServer.on('connection', (socket: Socket) => {
         const client = socket.id
-        
-        // socket.on('login', async (_id) => {                        
-        //     // const user = await User.findOneAndUpdate({ _id }, { socket_id: client })
-        //     // if (!user) {
-        //     //     socket.emit('login', false)
-        //     //     return
-        //     // }
-            
-        //     // const client: { client_id: string, user_id: string } = {} as any;
-
-        //     // client.client_id = socket.id;
-        //     // client.user_id = _id;
-
-        //     socket.emit('login', true);
-        //     // console.log(`\x1b[33m> Client ${client} logged in:\x1b[0m`, _id);
-        // })
-
 
         socket.on('join', (room) => {
             socket.join(room)
             ioServer.to(room).emit('join', room)
             // console.log(`\x1b[33m> Client ${client} connected to room:\x1b[0m`, room);
         })
+        // socket.on('message', (data) => {
+        //     console.log('data', data);
+            
+        // })
 
         socket.on('message', async ( _id, username, message, room) => {
             try {
@@ -52,8 +39,7 @@ export const initSocket = async (server: Server) => {
                 return socket.to(room).emit('message', 'Message could not be sent')
             }
             socket.to(room).emit('message', username, message)
-            console.log(`\x1b[33m> ${client}\x1b[0m`, username, message);
-
+            console.log(`\x1b[33m> server: ${client}\x1b[0m`, username, message);
         })
 
         socket.on('disconnect', (data) => {

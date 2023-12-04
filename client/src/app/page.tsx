@@ -6,7 +6,7 @@ import Link from 'next/link'
 import getError from '@/utils/getError'
 import axios from 'axios'
 const api = process.env.API_URL || "http://localhost:3030";
-let index = 0;
+
 export default function Home() {
   const { push } = useRouter()
   const [ userData, setUserData ] = useState({
@@ -27,8 +27,6 @@ export default function Home() {
   // being called twice for some reason
   useEffect(() => {
     (async () => {
-      index++;
-      console.log(index);
       const userData = await checkToken()
       if (userData === null || !userData) return push('/login')
       

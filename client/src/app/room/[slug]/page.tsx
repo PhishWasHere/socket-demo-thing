@@ -9,13 +9,13 @@ import axios from 'axios'
 import getError from '@/utils/getError'
 import { checkToken } from '@/utils/auth'
 const api = process.env.API_URL || "http://localhost:3030";
-// let socket: Socket | null  = null
+let socket: Socket | null  = null
 
 export default function Page() {
   const path = usePathname()
   const roomId = path.split('/')[2] // removes '/room/' from path
   const { push } = useRouter()
-  let socket = useRef<Socket | null>(null); // useRef is used to persist data between renders... idk if it fixes any issues need to test later
+  const [isConnected, setIsConnected] = useState(socket?.connected || false)
 
   const [ formData, setformData ] = useState({
     _id: '',
@@ -23,7 +23,7 @@ export default function Page() {
     message: '',
   });
   const [ messageData, setMessageData ] = useState([{_id: '', username: '', message: ''}])
-
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setformData({ ...formData, [e.target.name]: e.target.value })
   }
@@ -36,8 +36,22 @@ export default function Page() {
         
         
         const { token, decodedToken } = userData
-        socket.current = await initSocket(roomId, decodedToken._id!)
+        socket = await initSocket(roomId, decodedToken._id!)
         
+        socket.on('connect', () => {
+          setIsConnected(true)
+        })
+
+        socket.on('message', async (_id, username, message, room) => {
+          console.log('message', _id, username, message, room);
+          
+          setMessageData((prev) => {
+            const newMessage = {_id, username, message};
+            console.log(newMessage);
+            return [...prev, newMessage];
+          })
+        })
+
         setformData((prev) => ({
           ...prev,
           _id: decodedToken._id!,
@@ -51,36 +65,35 @@ export default function Page() {
         })
 
         if (!res.data || res.status != 200) throw new Error('No data returned from server')
+        await res.data.messageData.forEach((i: { _id: string; username: string; message: string }) => {
+          // setMessageData((prev) => [...prev, i])
+        });
 
+        
       } catch (err) {
         const errMsg = getError(err)
         console.log(errMsg)
       }
     })();
-
-    return () => {
-      if (socket.current) disconnectSocket(socket.current)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (socket.current) {
-      socket.current!.on('message', (data) => {
-        console.log(data);
-        
-        setMessageData((prev) => [...prev, {_id: data[0], username: data[1], message: data[2]}])
-      })
-    }
-    console.log(messageData);
     
-  }, [socket.current])
+    return () => {
+      if (socket) {
+        disconnectSocket(socket)
+        setIsConnected(false)
+      }
+    }
+}, [])
 
-  const handleSend = (async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault()
-    // console.log(formData.username);
-    await sendMessage(socket.current!, formData._id, formData.username, formData.message, roomId)
+const handleSend = (async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  e.preventDefault()    
+    await sendMessage(socket!, formData._id, formData.username, formData.message, roomId)
+    // socket!.emit('message', 'message test client')
+
+    setformData((prev) => ({
+      ...prev,
+      message: '',
+    }));
   }) 
-  
 
   return(
     <div>
@@ -92,7 +105,7 @@ export default function Page() {
       {
         messageData ? messageData.map((i) => {
           return (
-            <div key={i.username}>
+            <div key={i._id}>
               <p>{i.username}: {i.message}</p>
             </div>
           )

@@ -1,6 +1,6 @@
 import express from 'express';
 // import { getSocket } from '../../../utils/socket';
-import { Room, User } from '../../../models';
+import { Room, User, Message } from '../../../models';
 import getError from '../../../utils/getError';
 
 const router = express.Router();
@@ -14,11 +14,14 @@ router.post('/*', async (req, res) => {
         
         // const socket = await getSocket(userData.socket_id!);
 
-        const roomData = await Room.findById(room_id).exec();
-
+        const messageData = await Message.find({ room: room_id }).populate({
+            path: 'user',
+            select: 'username' // only return username field from user, removing will return password
+        });
         // socket!.to(room_id).emit('getRoomContent', roomData); // user needs to tringger "login" event from front-end before socket can be used
-
-        res.status(200).json({apple:'asdasd'});
+        // console.log(messageData);
+        
+        res.status(200).json({ messageData });
  
     } catch (err) {
         const errMsg = getError(err);
